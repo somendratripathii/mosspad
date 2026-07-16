@@ -573,8 +573,43 @@
     shutPreview();
     updateCounts();
     editor.focus();
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
   }
 
+  const DRAFT_KEY = 'mosspad-draft';
+
+  function saveDraft() {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        code: editor.value,
+        mode: modeSelect.value,
+        filename: filenameInput.value
+      }));
+    } catch (e) { /* storage unavailable — ignore */ }
+  }
+
+  function restoreDraft() {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (!saved) return;
+      const data = JSON.parse(saved);
+      if (data.mode) modeSelect.value = data.mode;
+      if (typeof data.code === 'string') editor.value = data.code;
+      if (data.filename) filenameInput.value = data.filename;
+    } catch (e) { /* ignore corrupted draft */ }
+  }
+
+  let saveTimer = null;
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveDraft, 400);
+  }
+
+  editor.addEventListener('input', scheduleSave);
+  modeSelect.addEventListener('change', scheduleSave);
+  filenameInput.addEventListener('input', scheduleSave);
+
+  restoreDraft();
   setModeUI();
   updateCounts();
   editor.focus();
