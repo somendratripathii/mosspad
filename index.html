@@ -27,25 +27,54 @@
     position: fixed;
     inset: 0;
     z-index: 0;
-    background: linear-gradient(180deg, #0c1613 0%, #101d19 45%, #16241f 100%);
+    background: radial-gradient(120% 90% at 50% 0%, #14201c 0%, #0c1613 55%, #080f0d 100%);
     overflow: hidden;
+  }
+
+  /* subtle film grain for a more modern, less flat backdrop */
+  .grain {
+    position: absolute;
+    inset: -10%;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   }
 
   .mist {
     position: absolute;
     border-radius: 50%;
     filter: blur(60px);
-    opacity: 0.35;
-    background: radial-gradient(circle, rgba(111,174,127,0.35), transparent 70%);
+    opacity: 0.3;
+    background: radial-gradient(circle, rgba(111,174,127,0.32), transparent 70%);
     animation: drift 40s ease-in-out infinite;
   }
   .mist.m1 { width: 520px; height: 520px; top: -120px; left: -100px; animation-duration: 46s; }
   .mist.m2 { width: 420px; height: 420px; bottom: -140px; right: -80px; animation-duration: 38s; animation-delay: -12s; }
-  .mist.m3 { width: 360px; height: 360px; top: 30%; left: 55%; animation-duration: 52s; animation-delay: -20s; opacity: 0.22; }
+  .mist.m3 { width: 360px; height: 360px; top: 30%; left: 55%; animation-duration: 52s; animation-delay: -20s; opacity: 0.18; }
 
   @keyframes drift {
     0%, 100% { transform: translate(0, 0); }
     50% { transform: translate(60px, 30px); }
+  }
+
+  /* ---------- Clouds ---------- */
+  .clouds { position: absolute; inset: 0; overflow: hidden; }
+  .cloud {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    background: radial-gradient(ellipse at center, rgba(180,196,192,0.4), transparent 72%);
+    animation: cloud-drift linear infinite;
+  }
+  .cloud.c1 { width: 420px; height: 140px; top: 6%;  left: -30vw; animation-duration: 75s; opacity: 0.5; }
+  .cloud.c2 { width: 320px; height: 110px; top: 14%; left: -30vw; animation-duration: 95s; animation-delay: -30s; opacity: 0.35; }
+  .cloud.c3 { width: 500px; height: 160px; top: 2%;  left: -30vw; animation-duration: 110s; animation-delay: -55s; opacity: 0.4; }
+  .cloud.c4 { width: 260px; height: 90px;  top: 20%; left: -30vw; animation-duration: 65s; animation-delay: -18s; opacity: 0.3; }
+
+  @keyframes cloud-drift {
+    0%   { transform: translateX(-10vw); }
+    100% { transform: translateX(130vw); }
   }
 
   .mountains { position: absolute; inset: 0; }
@@ -60,16 +89,53 @@
     clip-path: polygon(0% 100%, 0% 55%, 12% 40%, 24% 58%, 38% 30%, 52% 52%, 66% 20%, 80% 48%, 92% 32%, 100% 50%, 100% 100%);
     background: linear-gradient(180deg, #223832, #16241f);
     opacity: 0.55;
+    transition: filter 0.15s ease;
   }
   .ridge.near {
     height: 32%;
     clip-path: polygon(0% 100%, 0% 68%, 10% 45%, 26% 66%, 44% 38%, 60% 62%, 78% 34%, 90% 60%, 100% 42%, 100% 100%);
     background: linear-gradient(180deg, #1a2b25, #0f1815);
+    transition: filter 0.15s ease;
   }
 
+  /* ---------- Moss ground (foreground) ---------- */
+  .moss-ground {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 64px;
+    pointer-events: none;
+  }
+  .tuft {
+    position: absolute;
+    bottom: -8px;
+    border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+    background: radial-gradient(circle at 35% 25%, #4d7a55, #223a28 75%);
+    box-shadow: inset 0 -4px 8px rgba(0,0,0,0.35);
+    transform-origin: bottom center;
+    animation: sway ease-in-out infinite;
+  }
+  .tuft.t1  { left: 1%;  width: 70px; height: 34px; animation-duration: 6s; }
+  .tuft.t2  { left: 8%;  width: 46px; height: 22px; animation-duration: 5s;  animation-delay: -1s; }
+  .tuft.t3  { left: 15%; width: 90px; height: 44px; animation-duration: 7s;  animation-delay: -3s; }
+  .tuft.t4  { left: 25%; width: 54px; height: 26px; animation-duration: 5.5s; animation-delay: -2s; }
+  .tuft.t5  { left: 33%; width: 76px; height: 38px; animation-duration: 6.5s; animation-delay: -4s; }
+  .tuft.t6  { left: 43%; width: 40px; height: 20px; animation-duration: 4.5s; animation-delay: -1.5s; }
+  .tuft.t7  { left: 50%; width: 84px; height: 40px; animation-duration: 7.2s; animation-delay: -2.5s; }
+  .tuft.t8  { left: 60%; width: 50px; height: 24px; animation-duration: 5.2s; animation-delay: -3.5s; }
+  .tuft.t9  { left: 68%; width: 72px; height: 34px; animation-duration: 6.2s; animation-delay: -0.5s; }
+  .tuft.t10 { left: 78%; width: 42px; height: 20px; animation-duration: 4.8s; animation-delay: -2.2s; }
+  .tuft.t11 { left: 86%; width: 88px; height: 42px; animation-duration: 7s;   animation-delay: -4.5s; }
+  .tuft.t12 { left: 95%; width: 58px; height: 28px; animation-duration: 5.6s; animation-delay: -1.8s; }
+
+  @keyframes sway {
+    0%, 100% { transform: rotate(-1.5deg); }
+    50% { transform: rotate(1.5deg); }
+  }
+
+  /* ---------- Rain, with gusting wind ---------- */
   .rain { position: absolute; inset: -20% 0 0 0; }
   .rain-layer {
-    position: absolute; inset: 0;
+    position: absolute; inset: -10% -20%;
     background-image: repeating-linear-gradient(
       100deg,
       transparent 0,
@@ -77,19 +143,66 @@
       rgba(190, 214, 208, 0.16) 19px,
       transparent 21px
     );
-    animation: fall linear infinite;
+    animation: fall linear infinite, gust ease-in-out infinite;
   }
-  .rain-layer.r1 { background-size: 60px 140px; animation-duration: 0.6s; opacity: 0.5; }
-  .rain-layer.r2 { background-size: 90px 220px; animation-duration: 0.9s; opacity: 0.3; }
-  .rain-layer.r3 { background-size: 40px 100px; animation-duration: 0.45s; opacity: 0.4; }
+  .rain-layer.r1 { background-size: 60px 140px; animation-duration: 0.6s, 4.5s; opacity: 0.5; }
+  .rain-layer.r2 { background-size: 90px 220px; animation-duration: 0.9s, 6s;   opacity: 0.3; animation-delay: 0s, -2s; }
+  .rain-layer.r3 { background-size: 40px 100px; animation-duration: 0.45s, 3.8s; opacity: 0.4; animation-delay: 0s, -1s; }
 
   @keyframes fall {
     from { background-position: 0 -160px; }
     to   { background-position: -40px 160px; }
   }
+  @keyframes gust {
+    0%, 100% { transform: skewX(-6deg); }
+    50% { transform: skewX(-16deg); }
+  }
+
+  /* ---------- Lightning ---------- */
+  .lightning {
+    position: absolute;
+    inset: 0;
+    background: #dcebf5;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .lightning.flash { animation: lightning-flash 0.9s ease-out; }
+  .mountains:has(~ .lightning.flash) .ridge { filter: brightness(1.6); }
+
+  @keyframes lightning-flash {
+    0%   { opacity: 0; }
+    6%   { opacity: 0.8; }
+    12%  { opacity: 0.05; }
+    18%  { opacity: 0.55; }
+    28%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  /* ---------- Moss trim on the editor pane ---------- */
+  .editor-moss {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 20px;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .etuft {
+    position: absolute;
+    bottom: -6px;
+    border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+    background: radial-gradient(circle at 35% 25%, rgba(127,174,140,0.85), rgba(34,58,40,0.85) 75%);
+  }
+  .etuft.et1 { left: 2%;  width: 40px; height: 16px; }
+  .etuft.et2 { left: 14%; width: 26px; height: 12px; }
+  .etuft.et3 { left: 26%; width: 48px; height: 18px; }
+  .etuft.et4 { left: 42%; width: 30px; height: 13px; }
+  .etuft.et5 { left: 58%; width: 44px; height: 17px; }
+  .etuft.et6 { left: 74%; width: 28px; height: 12px; }
+  .etuft.et7 { left: 88%; width: 42px; height: 16px; }
 
   @media (prefers-reduced-motion: reduce) {
-    .mist, .ridge, .rain-layer { animation: none !important; }
+    .mist, .ridge, .rain-layer, .cloud, .tuft, .lightning.flash { animation: none !important; }
   }
 
   /* ---------- App shell ---------- */
@@ -186,11 +299,25 @@
     background: transparent;
   }
 
+  /* ---------- Bottom run bar ---------- */
+  .run-bar {
+    flex-shrink: 0;
+  }
+  .btn-run-large {
+    width: 100%;
+    padding: 16px;
+    font-size: 1rem;
+    border-radius: 14px;
+    justify-content: center;
+    letter-spacing: 0.02em;
+  }
+
   /* ---------- Workspace ---------- */
   .workspace {
     flex: 1;
     display: flex;
-    gap: 14px;
+    align-items: center;
+    justify-content: center;
     min-height: 0;
   }
 
@@ -208,7 +335,13 @@
     transition: flex-basis 0.4s ease;
   }
 
-  .editor-pane { flex: 1 1 100%; position: relative; }
+  .editor-pane {
+    position: relative;
+    width: 100%;
+    max-width: 980px;
+    height: calc(25 * 1.5675rem + 44px);
+    max-height: 100%;
+  }
 
   .editor-pane textarea {
     flex: 1;
@@ -222,9 +355,52 @@
     line-height: 1.65;
     padding: 22px 26px;
     caret-color: #d9b878;
+    overflow-y: auto;
   }
   .editor-pane textarea::placeholder { color: rgba(220,235,228,0.32); }
   .editor-pane textarea::selection { background: rgba(127,174,143,0.35); }
+
+  .preview-overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    background: rgba(14, 22, 19, 0.98);
+    z-index: 3;
+  }
+  .preview-overlay.show {
+    display: flex;
+    animation: wipe-in 0.5s ease;
+  }
+  @keyframes wipe-in {
+    from { clip-path: circle(0% at 50% 100%); }
+    to   { clip-path: circle(150% at 50% 100%); }
+  }
+  .preview-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #b9d1c2;
+    flex-shrink: 0;
+  }
+  .preview-close {
+    background: none;
+    border: none;
+    color: #b9d1c2;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+  }
+  .preview-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .preview-frame-wrap { flex: 1; min-height: 0; }
+  #previewFrame { width: 100%; height: 100%; border: none; background: #f4faf6; display: block; }
 
   /* ---------- Status bar ---------- */
   .statusbar {
@@ -351,6 +527,48 @@
     margin-bottom: 14px;
   }
 
+  .wide-box { max-width: 620px; }
+  .idea-input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .idea-input {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    color: #e7efe9;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.85rem;
+    padding: 10px 12px;
+  }
+  .idea-input::placeholder { color: rgba(220,235,228,0.4); }
+
+  .idea-results { max-height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+  .theme-card {
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .theme-mood { font-weight: 700; color: #cfe6d6; font-size: 0.9rem; margin-bottom: 10px; }
+  .swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .swatch {
+    width: 68px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: transform 0.12s ease;
+  }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch-color { height: 46px; }
+  .swatch-label { font-size: 0.62rem; font-family: 'JetBrains Mono', monospace; text-align: center; padding: 3px 2px; background: rgba(0,0,0,0.25); color: #e7efe9; }
+  .type-preview { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .type-block { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px 10px; }
+  .type-label { font-size: 0.68rem; color: #9db3a8; font-family: 'JetBrains Mono', monospace; margin-bottom: 2px; }
+  .type-sample-heading { font-size: 1.2rem; color: #e7efe9; }
+  .type-sample-body { font-size: 0.85rem; color: #dbe6df; }
+  .theme-tip { font-size: 0.78rem; color: #a9c2b3; font-style: italic; }
+  .copied-toast { font-size: 0.68rem; color: #7fae8c; margin-top: 2px; }
+
   ::-webkit-scrollbar { width: 10px; }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -363,18 +581,40 @@
 <body>
 
 <div class="scene" aria-hidden="true">
+  <div class="grain"></div>
   <div class="mist m1"></div>
   <div class="mist m2"></div>
   <div class="mist m3"></div>
+  <div class="clouds">
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+    <div class="cloud c3"></div>
+    <div class="cloud c4"></div>
+  </div>
   <div class="mountains">
     <div class="ridge far"></div>
     <div class="ridge near"></div>
+  </div>
+  <div class="moss-ground">
+    <div class="tuft t1"></div>
+    <div class="tuft t2"></div>
+    <div class="tuft t3"></div>
+    <div class="tuft t4"></div>
+    <div class="tuft t5"></div>
+    <div class="tuft t6"></div>
+    <div class="tuft t7"></div>
+    <div class="tuft t8"></div>
+    <div class="tuft t9"></div>
+    <div class="tuft t10"></div>
+    <div class="tuft t11"></div>
+    <div class="tuft t12"></div>
   </div>
   <div class="rain">
     <div class="rain-layer r1"></div>
     <div class="rain-layer r2"></div>
     <div class="rain-layer r3"></div>
   </div>
+  <div class="lightning" id="lightning"></div>
 </div>
 
 <div class="app">
@@ -388,16 +628,34 @@
     </select>
     <div class="spacer"></div>
     <button class="btn btn-ghost" id="newBtn" title="New (clear pad)">✦ New</button>
+    <button class="btn btn-ghost" id="ideasBtn" title="Get color & font ideas">🎨 Ideas</button>
     <button class="btn btn-ghost" id="filesBtn" title="Saved files">📁 Files</button>
     <button class="btn btn-ghost" id="saveFileBtn" title="Save to Mosspad">💾 Save</button>
     <button class="btn btn-ghost" id="shareBtn" title="Share a link to this code">🔗 Share</button>
     <button class="btn btn-ghost" id="downloadBtn" title="Download as a file">⤓ Download</button>
-    <button class="btn btn-run" id="runBtn" title="Run (Ctrl+Enter)">▶ Run</button>
   </header>
 
   <div class="workspace" id="workspace">
     <section class="pane editor-pane">
       <textarea id="editor" placeholder="Start writing your code here..." spellcheck="false"></textarea>
+      <div class="editor-moss">
+        <div class="etuft et1"></div>
+        <div class="etuft et2"></div>
+        <div class="etuft et3"></div>
+        <div class="etuft et4"></div>
+        <div class="etuft et5"></div>
+        <div class="etuft et6"></div>
+        <div class="etuft et7"></div>
+      </div>
+      <div class="preview-overlay" id="previewOverlay">
+        <div class="preview-topbar">
+          <span id="previewLabel">Preview</span>
+          <button class="preview-close" id="previewCloseBtn">← Back to code</button>
+        </div>
+        <div class="preview-frame-wrap">
+          <iframe id="previewFrame" sandbox="allow-scripts allow-modals"></iframe>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -407,6 +665,10 @@
     <span class="stat" id="charCount">Characters: 0</span>
     <span class="stat" id="modeLabel">Mode: HTML</span>
   </footer>
+
+  <div class="run-bar">
+    <button class="btn btn-run btn-run-large" id="runBtn" title="Run (Ctrl+Enter)">▶ Run Code</button>
+  </div>
 </div>
 
 <div class="confirm-overlay" id="confirmOverlay">
@@ -416,6 +678,21 @@
       <button class="btn" id="confirmCancel">Cancel</button>
       <button class="btn btn-run" id="confirmOk">Clear it</button>
     </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="ideasOverlay">
+  <div class="confirm-box panel-box wide-box">
+    <div class="panel-head">
+      <span>Color & font ideas</span>
+      <button class="preview-close" id="closeIdeas" title="Close">✕</button>
+    </div>
+    <p class="share-note">Type what your project is about — a mood, a topic, a vibe — and get a matching palette and font pairing.</p>
+    <div class="idea-input-row">
+      <input type="text" id="ideaInput" class="idea-input" placeholder="e.g. cozy coffee shop, cyberpunk game, ocean sunset..." spellcheck="false">
+      <button class="btn btn-run" id="ideaFindBtn">Find</button>
+    </div>
+    <div class="idea-results" id="ideaResults"></div>
   </div>
 </div>
 
@@ -468,6 +745,13 @@
   const confirmOk = document.getElementById('confirmOk');
   const confirmCancel = document.getElementById('confirmCancel');
 
+  const ideasBtn = document.getElementById('ideasBtn');
+  const ideasOverlay = document.getElementById('ideasOverlay');
+  const closeIdeas = document.getElementById('closeIdeas');
+  const ideaInput = document.getElementById('ideaInput');
+  const ideaFindBtn = document.getElementById('ideaFindBtn');
+  const ideaResults = document.getElementById('ideaResults');
+
   const filesBtn = document.getElementById('filesBtn');
   const filesOverlay = document.getElementById('filesOverlay');
   const filesList = document.getElementById('filesList');
@@ -483,6 +767,11 @@
   const loadSharedOverlay = document.getElementById('loadSharedOverlay');
   const loadSharedOk = document.getElementById('loadSharedOk');
   const loadSharedCancel = document.getElementById('loadSharedCancel');
+
+  const previewOverlay = document.getElementById('previewOverlay');
+  const previewFrame = document.getElementById('previewFrame');
+  const previewLabel = document.getElementById('previewLabel');
+  const previewCloseBtn = document.getElementById('previewCloseBtn');
 
   let currentFileId = null;
 
@@ -528,6 +817,8 @@
       downloadFile();
     }
   });
+
+  let lastPreviewUrl = null;
 
   function runCode() {
     const mode = modeSelect.value;
@@ -596,10 +887,20 @@
 
     const blob = new Blob([doc], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+    if (lastPreviewUrl) URL.revokeObjectURL(lastPreviewUrl);
+    lastPreviewUrl = url;
+    previewLabel.textContent = mode === 'js' ? 'Console' : 'Preview';
+    previewFrame.src = url;
+    previewOverlay.classList.add('show');
   }
 
   runBtn.addEventListener('click', runCode);
+
+  previewCloseBtn.addEventListener('click', () => {
+    previewOverlay.classList.remove('show');
+    previewFrame.src = 'about:blank';
+    editor.focus();
+  });
 
   function downloadFile() {
     const blob = new Blob([editor.value], { type: 'text/plain' });
@@ -628,6 +929,200 @@
 
   const DRAFT_KEY = 'mosspad-draft';
   const FILES_KEY = 'mosspad-files';
+
+  // ---------- Color & font idea engine ----------
+  const DESIGN_THEMES = [
+    { id: 'nature', keywords: ['nature','forest','mountain','rain','greenery','moss','earthy','outdoors','hike','woods','green','trees'], mood: 'Earthy & Calm',
+      colors: [{hex:'#2F4F3D',name:'Deep Moss'},{hex:'#7FA87F',name:'Sage Green'},{hex:'#D9B878',name:'Warm Amber'},{hex:'#E8ECE8',name:'Mist White'}],
+      heading:'Fraunces', body:'Manrope', tip:'A soft serif heading feels organic and grounded; a clean sans body keeps it readable outdoors.' },
+    { id: 'ocean', keywords: ['ocean','beach','sea','wave','coast','sunset','tropical','summer','surf','shore'], mood: 'Breezy & Bright',
+      colors: [{hex:'#0F5E6E',name:'Deep Teal'},{hex:'#4FB8C4',name:'Aqua'},{hex:'#F4A259',name:'Coral Sun'},{hex:'#FDF6E3',name:'Sand'}],
+      heading:'Poppins', body:'Inter', tip:'Rounded, friendly letterforms match the relaxed feel of coastlines and warm light.' },
+    { id: 'cyberpunk', keywords: ['cyberpunk','neon','futuristic','sci-fi','scifi','robot','tech','hacker','game','gaming','matrix'], mood: 'Neon & Electric',
+      colors: [{hex:'#0D0221',name:'Void Black'},{hex:'#FF2E63',name:'Neon Pink'},{hex:'#08D9D6',name:'Electric Cyan'},{hex:'#252A34',name:'Charcoal'}],
+      heading:'Orbitron', body:'Space Mono', tip:'Sharp geometric headings and a monospace body echo terminal screens and circuitry.' },
+    { id: 'cozy', keywords: ['cozy','coffee','cafe','warm','autumn','fall','fireplace','hygge','bakery','tea'], mood: 'Warm & Inviting',
+      colors: [{hex:'#4A3428',name:'Espresso'},{hex:'#C77B45',name:'Caramel'},{hex:'#E8C4A2',name:'Cream'},{hex:'#F7EDE2',name:'Milk Foam'}],
+      heading:'Playfair Display', body:'Lora', tip:'Elegant serifs throughout feel handwritten and homely, like a chalkboard menu.' },
+    { id: 'vintage', keywords: ['vintage','retro','old','classic','antique','nostalgic','80s','70s','film'], mood: 'Nostalgic & Warm',
+      colors: [{hex:'#8B3A3A',name:'Brick Red'},{hex:'#D8A657',name:'Mustard'},{hex:'#4A5859',name:'Faded Teal'},{hex:'#F1E6D0',name:'Aged Paper'}],
+      heading:'Abril Fatface', body:'Josefin Sans', tip:'A bold display serif paired with a geometric sans nods to mid-century print design.' },
+    { id: 'corporate', keywords: ['corporate','business','professional','finance','office','startup','company','consulting'], mood: 'Trustworthy & Clean',
+      colors: [{hex:'#1B2A4A',name:'Navy'},{hex:'#3B6EA5',name:'Steel Blue'},{hex:'#F2F4F7',name:'Cloud Grey'},{hex:'#D9A441',name:'Gold Accent'}],
+      heading:'Inter', body:'Inter', tip:'One clean sans family in different weights keeps things consistent and confidence-inspiring.' },
+    { id: 'playful', keywords: ['playful','kids','fun','children','cartoon','toy','birthday','game','colorful'], mood: 'Bright & Fun',
+      colors: [{hex:'#FF6B6B',name:'Coral'},{hex:'#FFD93D',name:'Sunshine'},{hex:'#6BCB77',name:'Grass'},{hex:'#4D96FF',name:'Sky Blue'}],
+      heading:'Baloo 2', body:'Quicksand', tip:'Rounded, bouncy letterforms feel friendly and approachable for a young audience.' },
+    { id: 'halloween', keywords: ['halloween','spooky','scary','ghost','horror','pumpkin','witch','dark'], mood: 'Spooky & Bold',
+      colors: [{hex:'#1A1A2E',name:'Midnight'},{hex:'#F97316',name:'Pumpkin'},{hex:'#7C3AED',name:'Witch Purple'},{hex:'#E5E5E5',name:'Bone White'}],
+      heading:'Creepster', body:'Nunito', tip:'A dramatic display font for headings against a plain body keeps spooky readable.' },
+    { id: 'romantic', keywords: ['love','romantic','wedding','valentine','date','couple','anniversary'], mood: 'Soft & Elegant',
+      colors: [{hex:'#7A2E3B',name:'Wine'},{hex:'#E8A0A6',name:'Blush'},{hex:'#F7E7CE',name:'Champagne'},{hex:'#FFFFFF',name:'Pure White'}],
+      heading:'Cormorant Garamond', body:'Montserrat', tip:'Delicate serif headings with generous spacing feel intimate and refined.' },
+    { id: 'luxury', keywords: ['luxury','premium','gold','elegant','high-end','fashion','jewelry'], mood: 'Rich & Refined',
+      colors: [{hex:'#0B0B0B',name:'Black'},{hex:'#C9A24B',name:'Gold'},{hex:'#3A3A3A',name:'Graphite'},{hex:'#F5F0E6',name:'Ivory'}],
+      heading:'Playfair Display', body:'Jost', tip:'High contrast between a slim serif and lots of black space reads as premium.' },
+    { id: 'space', keywords: ['space','galaxy','stars','universe','astronaut','planet','cosmic','nebula'], mood: 'Vast & Mysterious',
+      colors: [{hex:'#03071E',name:'Deep Space'},{hex:'#6A0572',name:'Nebula Purple'},{hex:'#00B4D8',name:'Star Blue'},{hex:'#F4F4F4',name:'Starlight'}],
+      heading:'Exo 2', body:'Rajdhani', tip:'Angular, technical letterforms suit the vastness and precision of space themes.' },
+    { id: 'minimalist', keywords: ['minimalist','minimal','simple','clean','modern','portfolio'], mood: 'Quiet & Precise',
+      colors: [{hex:'#111111',name:'Ink'},{hex:'#FFFFFF',name:'White'},{hex:'#B0B0B0',name:'Grey'},{hex:'#E63946',name:'Accent Red'}],
+      heading:'Helvetica Now', body:'Inter', tip:'One accent color against black, white, and grey keeps attention on content, not decoration.' },
+    { id: 'monochrome', keywords: ['monochrome','black and white','grayscale','noir'], mood: 'Stark & Timeless',
+      colors: [{hex:'#000000',name:'Black'},{hex:'#4D4D4D',name:'Charcoal'},{hex:'#B3B3B3',name:'Grey'},{hex:'#FFFFFF',name:'White'}],
+      heading:'Archivo Black', body:'Archivo', tip:'Same family in different weights creates rhythm without needing color at all.' },
+    { id: 'pastel', keywords: ['pastel','soft','cute','gentle','baby','feminine'], mood: 'Gentle & Soft',
+      colors: [{hex:'#FFD6E8',name:'Blush Pink'},{hex:'#C8F0E4',name:'Mint'},{hex:'#FFF4CC',name:'Butter'},{hex:'#D6E4FF',name:'Powder Blue'}],
+      heading:'Quicksand', body:'Nunito', tip:'Rounded fonts at low contrast keep the gentle, soft feeling consistent.' },
+    { id: 'autumn', keywords: ['autumn','fall','harvest','leaves','pumpkin spice'], mood: 'Rustic & Warm',
+      colors: [{hex:'#7C2D12',name:'Rust'},{hex:'#D97706',name:'Amber'},{hex:'#78350F',name:'Bark'},{hex:'#FEF3C7',name:'Straw'}],
+      heading:'Merriweather', body:'Source Sans Pro', tip:'A warm serif heading feels like harvest and hearth; keep body text simple.' },
+    { id: 'winter', keywords: ['winter','snow','ice','cold','christmas','holiday','frost'], mood: 'Crisp & Cool',
+      colors: [{hex:'#0B3954',name:'Deep Frost'},{hex:'#A8DADC',name:'Ice Blue'},{hex:'#F1FAEE',name:'Snow'},{hex:'#E63946',name:'Berry Red'}],
+      heading:'Libre Baskerville', body:'Nunito Sans', tip:'Cool blues with one warm red accent feels festive without being loud.' },
+    { id: 'spring', keywords: ['spring','floral','flowers','garden','bloom','pastel','easter'], mood: 'Fresh & Blooming',
+      colors: [{hex:'#F72585',name:'Peony'},{hex:'#7BDFF2',name:'Sky'},{hex:'#B9FBC0',name:'Fresh Leaf'},{hex:'#FFFFFB',name:'Petal White'}],
+      heading:'Comfortaa', body:'Karla', tip:'Soft rounded shapes and bright but light colors feel new and growing.' },
+    { id: 'foodie', keywords: ['food','restaurant','recipe','bakery','kitchen','chef','menu'], mood: 'Appetizing & Homey',
+      colors: [{hex:'#7A2E2E',name:'Tomato'},{hex:'#E8B84B',name:'Butter'},{hex:'#4A6741',name:'Herb Green'},{hex:'#FBF6EF',name:'Flour White'}],
+      heading:'Bitter', body:'Karla', tip:'A sturdy serif heading feels like a printed menu; keep body text simple for easy scanning.' },
+    { id: 'health', keywords: ['health','medical','wellness','fitness','clinic','doctor','hospital'], mood: 'Clean & Reassuring',
+      colors: [{hex:'#0B7285',name:'Clinical Teal'},{hex:'#63C7B2',name:'Mint'},{hex:'#F1F5F3',name:'Soft White'},{hex:'#2B8A3E',name:'Health Green'}],
+      heading:'Nunito', body:'Nunito Sans', tip:'Rounded, friendly sans fonts feel approachable rather than clinical.' }
+  ];
+
+  const DEFAULT_THEME = DESIGN_THEMES.find((t) => t.id === 'minimalist');
+
+  function tokenize(str) {
+    return (str.toLowerCase().match(/[a-z0-9]+/g) || []);
+  }
+
+  function scoreTheme(theme, inputLower, words) {
+    let score = 0;
+    theme.keywords.forEach((k) => { if (inputLower.includes(k)) score += 2; });
+    words.forEach((w) => {
+      if (w.length < 3) return;
+      theme.keywords.forEach((k) => { if (k.includes(w) || w.includes(k)) score += 1; });
+    });
+    return score;
+  }
+
+  function findThemes(input) {
+    const inputLower = input.toLowerCase().trim();
+    const words = tokenize(inputLower);
+    const scored = DESIGN_THEMES.map((t) => ({ theme: t, score: scoreTheme(t, inputLower, words) }))
+      .filter((s) => s.score > 0)
+      .sort((a, b) => b.score - a.score);
+    if (scored.length === 0) return [DEFAULT_THEME];
+    return scored.slice(0, 2).map((s) => s.theme);
+  }
+
+  const loadedFonts = new Set();
+  function ensureFontLoaded(family) {
+    if (loadedFonts.has(family)) return;
+    loadedFonts.add(family);
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;700&display=swap`;
+    document.head.appendChild(link);
+  }
+
+  function hexToRgb(hex) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  function renderThemeCard(theme) {
+    ensureFontLoaded(theme.heading);
+    ensureFontLoaded(theme.body);
+
+    const card = document.createElement('div');
+    card.className = 'theme-card';
+
+    const moodEl = document.createElement('div');
+    moodEl.className = 'theme-mood';
+    moodEl.textContent = theme.mood;
+    card.appendChild(moodEl);
+
+    const swatchRow = document.createElement('div');
+    swatchRow.className = 'swatch-row';
+    theme.colors.forEach((c) => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch';
+      sw.title = 'Click to copy hex code';
+      const colorBox = document.createElement('div');
+      colorBox.className = 'swatch-color';
+      colorBox.style.background = c.hex;
+      const label = document.createElement('div');
+      label.className = 'swatch-label';
+      label.textContent = c.hex.toUpperCase();
+      sw.appendChild(colorBox);
+      sw.appendChild(label);
+      sw.addEventListener('click', () => {
+        const text = `${c.hex.toUpperCase()} / ${hexToRgb(c.hex)}`;
+        navigator.clipboard && navigator.clipboard.writeText(text).catch(() => {});
+        const oldLabel = label.textContent;
+        label.textContent = 'Copied!';
+        setTimeout(() => { label.textContent = oldLabel; }, 1200);
+      });
+      swatchRow.appendChild(sw);
+    });
+    card.appendChild(swatchRow);
+
+    const typePreview = document.createElement('div');
+    typePreview.className = 'type-preview';
+
+    const headBlock = document.createElement('div');
+    headBlock.className = 'type-block';
+    const headLabel = document.createElement('div');
+    headLabel.className = 'type-label';
+    headLabel.textContent = `Heading — ${theme.heading}`;
+    const headSample = document.createElement('div');
+    headSample.className = 'type-sample-heading';
+    headSample.style.fontFamily = `'${theme.heading}', sans-serif`;
+    headSample.textContent = 'Aa Bb Cc — The quick brown fox';
+    headBlock.appendChild(headLabel);
+    headBlock.appendChild(headSample);
+
+    const bodyBlock = document.createElement('div');
+    bodyBlock.className = 'type-block';
+    const bodyLabel = document.createElement('div');
+    bodyLabel.className = 'type-label';
+    bodyLabel.textContent = `Body — ${theme.body}`;
+    const bodySample = document.createElement('div');
+    bodySample.className = 'type-sample-body';
+    bodySample.style.fontFamily = `'${theme.body}', sans-serif`;
+    bodySample.textContent = 'The quick brown fox jumps over the lazy dog.';
+    bodyBlock.appendChild(bodyLabel);
+    bodyBlock.appendChild(bodySample);
+
+    typePreview.appendChild(headBlock);
+    typePreview.appendChild(bodyBlock);
+    card.appendChild(typePreview);
+
+    const tip = document.createElement('div');
+    tip.className = 'theme-tip';
+    tip.textContent = theme.tip;
+    card.appendChild(tip);
+
+    return card;
+  }
+
+  function runIdeaSearch() {
+    const val = ideaInput.value.trim();
+    ideaResults.innerHTML = '';
+    if (!val) return;
+    const themes = findThemes(val);
+    themes.forEach((theme) => ideaResults.appendChild(renderThemeCard(theme)));
+  }
+
+  ideasBtn.addEventListener('click', () => { ideasOverlay.classList.add('show'); ideaInput.focus(); });
+  closeIdeas.addEventListener('click', () => ideasOverlay.classList.remove('show'));
+  ideaFindBtn.addEventListener('click', runIdeaSearch);
+  ideaInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runIdeaSearch(); });
 
   function loadFiles() {
     try {
@@ -819,6 +1314,23 @@
   updateCounts();
   editor.focus();
   checkForSharedLink();
+
+  // ---------- Occasional lightning flash (purely decorative, behind the glass panels) ----------
+  const lightningEl = document.getElementById('lightning');
+  function scheduleLightning() {
+    const delay = 7000 + Math.random() * 15000; // every 7–22s
+    setTimeout(() => {
+      if (lightningEl) {
+        lightningEl.classList.remove('flash');
+        void lightningEl.offsetWidth; // restart animation
+        lightningEl.classList.add('flash');
+      }
+      scheduleLightning();
+    }, delay);
+  }
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    scheduleLightning();
+  }
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
