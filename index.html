@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mosspad</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16241f">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    color: #e7efe9;
+    overflow: hidden;
+    background: #0f1815;
+  }
+
+  :focus-visible { outline: 2px solid #d9b878; outline-offset: 2px; }
+
+  /* ---------- Ambient scene ---------- */
+  .scene {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(180deg, #0c1613 0%, #101d19 45%, #16241f 100%);
+    overflow: hidden;
+  }
+
+  .mist {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.35;
+    background: radial-gradient(circle, rgba(111,174,127,0.35), transparent 70%);
+    animation: drift 40s ease-in-out infinite;
+  }
+  .mist.m1 { width: 520px; height: 520px; top: -120px; left: -100px; animation-duration: 46s; }
+  .mist.m2 { width: 420px; height: 420px; bottom: -140px; right: -80px; animation-duration: 38s; animation-delay: -12s; }
+  .mist.m3 { width: 360px; height: 360px; top: 30%; left: 55%; animation-duration: 52s; animation-delay: -20s; opacity: 0.22; }
+
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(60px, 30px); }
+  }
+
+  .mountains { position: absolute; inset: 0; }
+  .ridge {
+    position: absolute;
+    bottom: 0;
+    left: -5%;
+    width: 110%;
+    height: 46%;
+  }
+  .ridge.far {
+    clip-path: polygon(0% 100%, 0% 55%, 12% 40%, 24% 58%, 38% 30%, 52% 52%, 66% 20%, 80% 48%, 92% 32%, 100% 50%, 100% 100%);
+    background: linear-gradient(180deg, #223832, #16241f);
+    opacity: 0.55;
+  }
+  .ridge.near {
+    height: 32%;
+    clip-path: polygon(0% 100%, 0% 68%, 10% 45%, 26% 66%, 44% 38%, 60% 62%, 78% 34%, 90% 60%, 100% 42%, 100% 100%);
+    background: linear-gradient(180deg, #1a2b25, #0f1815);
+  }
+
+  .rain { position: absolute; inset: -20% 0 0 0; }
+  .rain-layer {
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(
+      100deg,
+      transparent 0,
+      transparent 18px,
+      rgba(190, 214, 208, 0.16) 19px,
+      transparent 21px
+    );
+    animation: fall linear infinite;
+  }
+  .rain-layer.r1 { background-size: 60px 140px; animation-duration: 0.6s; opacity: 0.5; }
+  .rain-layer.r2 { background-size: 90px 220px; animation-duration: 0.9s; opacity: 0.3; }
+  .rain-layer.r3 { background-size: 40px 100px; animation-duration: 0.45s; opacity: 0.4; }
+
+  @keyframes fall {
+    from { background-position: 0 -160px; }
+    to   { background-position: -40px 160px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mist, .ridge, .rain-layer { animation: none !important; }
+  }
+
+  /* ---------- App shell ---------- */
+  .app {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 22px;
+    gap: 12px;
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: rgba(230, 240, 235, 0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    color: #cfe6d6;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 6px;
+    white-space: nowrap;
+  }
+
+  .filename-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed rgba(255,255,255,0.2);
+    color: #e7efe9;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    padding: 5px 4px;
+    width: 160px;
+    transition: border-color 0.2s ease;
+  }
+  .filename-input:hover, .filename-input:focus { border-bottom-color: #7fae8c; }
+
+  .mode-select {
+    background: rgba(255,255,255,0.06);
+    color: #e7efe9;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .mode-select option { background: #16241f; color: #e7efe9; }
+
+  .spacer { flex: 1; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.05);
+    color: #e7efe9;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 8px 14px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
+  }
+  .btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  .btn-run {
+    background: linear-gradient(135deg, #4f8f66, #3f7a56);
+    border-color: transparent;
+    color: #eafbf0;
+    box-shadow: 0 4px 18px rgba(63,122,86,0.35);
+  }
+  .btn-run:hover { background: linear-gradient(135deg, #5a9c72, #488362); }
+
+  .btn-ghost {
+    background: transparent;
+  }
+
+  /* ---------- Workspace ---------- */
+  .workspace {
+    flex: 1;
+    display: flex;
+    gap: 14px;
+    min-height: 0;
+  }
+
+  .pane {
+    border-radius: 16px;
+    background: rgba(220, 235, 228, 0.055);
+    border: 1px solid rgba(255,255,255,0.13);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    transition: flex-basis 0.4s ease;
+  }
+
+  .editor-pane { flex: 1 1 100%; position: relative; }
+
+  .editor-pane textarea {
+    flex: 1;
+    resize: none;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #e9f2ec;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    padding: 22px 26px;
+    caret-color: #d9b878;
+  }
+  .editor-pane textarea::placeholder { color: rgba(220,235,228,0.32); }
+  .editor-pane textarea::selection { background: rgba(127,174,143,0.35); }
+
+  /* preview pane */
+  .preview-pane {
+    flex: 0 0 0%;
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .workspace.split .editor-pane { flex: 1 1 48%; }
+  .workspace.split .preview-pane {
+    flex: 1 1 52%;
+    width: auto;
+    opacity: 1;
+    pointer-events: auto;
+    animation: wipe-in 0.55s ease;
+  }
+
+  @keyframes wipe-in {
+    from { clip-path: circle(0% at 100% 0%); opacity: 0.4; }
+    to   { clip-path: circle(150% at 100% 0%); opacity: 1; }
+  }
+
+  .preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.78rem;
+    color: #b9d1c2;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .preview-close {
+    background: none;
+    border: none;
+    color: #b9d1c2;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .preview-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  .preview-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .preview-body iframe {
+    flex: 1;
+    border: none;
+    width: 100%;
+    background: #f4faf6;
+  }
+
+  .console {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+  .console .line { padding: 3px 0; border-bottom: 1px dashed rgba(255,255,255,0.06); white-space: pre-wrap; word-break: break-word; }
+  .console .line.error { color: #f2a0a0; }
+  .console .line.warn { color: #e8d090; }
+  .console .empty { color: rgba(220,235,228,0.4); font-style: italic; }
+
+  /* ---------- Status bar ---------- */
+  .statusbar {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 8px 18px;
+    border-radius: 12px;
+    background: rgba(230, 240, 235, 0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.74rem;
+    color: #a9c2b3;
+    backdrop-filter: blur(14px);
+  }
+  .statusbar .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #7fae8c;
+    box-shadow: 0 0 8px rgba(127,174,140,0.8);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+  .statusbar .stat { display: flex; align-items: center; gap: 6px; }
+
+  /* ---------- Confirm toast ---------- */
+  .confirm-overlay {
+    position: fixed; inset: 0; z-index: 20;
+    background: rgba(10, 16, 14, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .confirm-overlay.show { display: flex; }
+  .confirm-box {
+    background: rgba(24, 38, 33, 0.9);
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(20px);
+    border-radius: 14px;
+    padding: 22px 24px;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .confirm-box p { margin: 0 0 16px; color: #e7efe9; font-size: 0.9rem; }
+  .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  @media (max-width: 720px) {
+    .workspace.split { flex-direction: column; }
+    .workspace.split .editor-pane, .workspace.split .preview-pane { flex: 1 1 50%; width: auto; }
+    .filename-input { width: 110px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scene" aria-hidden="true">
+  <div class="mist m1"></div>
+  <div class="mist m2"></div>
+  <div class="mist m3"></div>
+  <div class="mountains">
+    <div class="ridge far"></div>
+    <div class="ridge near"></div>
+  </div>
+  <div class="rain">
+    <div class="rain-layer r1"></div>
+    <div class="rain-layer r2"></div>
+    <div class="rain-layer r3"></div>
+  </div>
+</div>
+
+<div class="app">
+  <header class="toolbar">
+    <div class="brand">🌿 Mosspad</div>
+    <input class="filename-input" id="filename" value="untitled.html" spellcheck="false" aria-label="File name">
+    <select class="mode-select" id="mode" aria-label="Language mode">
+      <option value="html">HTML</option>
+      <option value="js">JavaScript</option>
+    </select>
+    <div class="spacer"></div>
+    <button class="btn btn-ghost" id="newBtn" title="New (clear pad)">✦ New</button>
+    <button class="btn btn-ghost" id="downloadBtn" title="Download file">⤓ Save</button>
+    <button class="btn btn-run" id="runBtn" title="Run (Ctrl+Enter)">▶ Run</button>
+  </header>
+
+  <div class="workspace" id="workspace">
+    <section class="pane editor-pane">
+      <textarea id="editor" placeholder="Start writing your code here..." spellcheck="false"></textarea>
+    </section>
+
+    <section class="pane preview-pane" id="previewPane">
+      <div class="preview-head">
+        <span id="previewLabel">Preview</span>
+        <button class="preview-close" id="closePreview" title="Back to writing">← close</button>
+      </div>
+      <div class="preview-body" id="previewBody"></div>
+    </section>
+  </div>
+
+  <footer class="statusbar">
+    <span class="dot"></span>
+    <span class="stat" id="lineCount">Lines: 0</span>
+    <span class="stat" id="charCount">Characters: 0</span>
+    <span class="stat" id="modeLabel">Mode: HTML</span>
+  </footer>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p>Clear the pad and start a new file? What you've written will be gone.</p>
+    <div class="confirm-actions">
+      <button class="btn" id="confirmCancel">Cancel</button>
+      <button class="btn btn-run" id="confirmOk">Clear it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const editor = document.getElementById('editor');
+  const filenameInput = document.getElementById('filename');
+  const modeSelect = document.getElementById('mode');
+  const runBtn = document.getElementById('runBtn');
+  const newBtn = document.getElementById('newBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const workspace = document.getElementById('workspace');
+  const previewPane = document.getElementById('previewPane');
+  const previewBody = document.getElementById('previewBody');
+  const previewLabel = document.getElementById('previewLabel');
+  const closePreview = document.getElementById('closePreview');
+  const lineCount = document.getElementById('lineCount');
+  const charCount = document.getElementById('charCount');
+  const modeLabel = document.getElementById('modeLabel');
+  const confirmOverlay = document.getElementById('confirmOverlay');
+  const confirmOk = document.getElementById('confirmOk');
+  const confirmCancel = document.getElementById('confirmCancel');
+
+  const placeholders = {
+    html: 'Start writing your code here...\n\ne.g. <h1>Hello, mountains!</h1>',
+    js: 'Start writing your code here...\n\ne.g. console.log("hello from the rain")'
+  };
+
+  function updateCounts() {
+    const text = editor.value;
+    const lines = text.length === 0 ? 0 : text.split('\n').length;
+    lineCount.textContent = `Lines: ${lines}`;
+    charCount.textContent = `Characters: ${text.length}`;
+  }
+
+  function setModeUI() {
+    const mode = modeSelect.value;
+    editor.placeholder = placeholders[mode];
+    modeLabel.textContent = `Mode: ${mode.toUpperCase()}`;
+    const currentName = filenameInput.value.replace(/\.(html|js)$/i, '');
+    filenameInput.value = `${currentName || 'untitled'}.${mode === 'html' ? 'html' : 'js'}`;
+  }
+
+  editor.addEventListener('input', updateCounts);
+  modeSelect.addEventListener('change', setModeUI);
+
+  editor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = editor.selectionStart, end = editor.selectionEnd;
+      editor.value = editor.value.slice(0, start) + '  ' + editor.value.slice(end);
+      editor.selectionStart = editor.selectionEnd = start + 2;
+      updateCounts();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      runCode();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      downloadFile();
+    }
+  });
+
+  function openPreview() {
+    workspace.classList.add('split');
+  }
+  function shutPreview() {
+    workspace.classList.remove('split');
+  }
+  closePreview.addEventListener('click', shutPreview);
+
+  function runCode() {
+    const mode = modeSelect.value;
+    previewBody.innerHTML = '';
+    openPreview();
+
+    if (mode === 'html') {
+      previewLabel.textContent = 'Preview';
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('sandbox', 'allow-scripts allow-modals');
+      previewBody.appendChild(iframe);
+      iframe.srcdoc = editor.value;
+    } else {
+      previewLabel.textContent = 'Console';
+      const consoleEl = document.createElement('div');
+      consoleEl.className = 'console';
+      previewBody.appendChild(consoleEl);
+
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('sandbox', 'allow-scripts');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+
+      const userCode = editor.value.replace(/<\/script>/g, '<\\/script>');
+      const doc = `<!DOCTYPE html><html><head></head><body><script>
+        (function(){
+          function send(level, args){
+            parent.postMessage({ __mosspad: true, level: level, args: args.map(function(a){
+              try { return typeof a === 'object' ? JSON.stringify(a) : String(a); }
+              catch(e){ return String(a); }
+            }) }, '*');
+          }
+          ['log','info','warn','error'].forEach(function(level){
+            var orig = console[level];
+            console[level] = function(){ send(level, Array.prototype.slice.call(arguments)); orig && orig.apply(console, arguments); };
+          });
+          window.onerror = function(msg, url, line){ send('error', [msg + ' (line ' + line + ')']); };
+          try {
+            ${userCode}
+          } catch (e) {
+            send('error', [e.message]);
+          }
+        })();
+      <\/script></body></html>`;
+
+      const listener = (e) => {
+        if (e.data && e.data.__mosspad) {
+          const line = document.createElement('div');
+          line.className = 'line' + (e.data.level === 'error' ? ' error' : e.data.level === 'warn' ? ' warn' : '');
+          line.textContent = e.data.args.join(' ');
+          if (consoleEl.querySelector('.empty')) consoleEl.innerHTML = '';
+          consoleEl.appendChild(line);
+          consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+      };
+      window.addEventListener('message', listener);
+
+      iframe.srcdoc = doc;
+      iframe.addEventListener('load', () => {
+        setTimeout(() => {
+          if (!consoleEl.hasChildNodes()) {
+            const empty = document.createElement('div');
+            empty.className = 'empty';
+            empty.textContent = 'No output yet — try a console.log()';
+            consoleEl.appendChild(empty);
+          }
+          window.removeEventListener('message', listener);
+          iframe.remove();
+        }, 400);
+      });
+    }
+  }
+
+  runBtn.addEventListener('click', runCode);
+
+  function downloadFile() {
+    const blob = new Blob([editor.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filenameInput.value || 'untitled.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  downloadBtn.addEventListener('click', downloadFile);
+
+  newBtn.addEventListener('click', () => {
+    if (editor.value.trim().length === 0) { doClear(); return; }
+    confirmOverlay.classList.add('show');
+  });
+  confirmCancel.addEventListener('click', () => confirmOverlay.classList.remove('show'));
+  confirmOk.addEventListener('click', () => { confirmOverlay.classList.remove('show'); doClear(); });
+  function doClear() {
+    editor.value = '';
+    shutPreview();
+    updateCounts();
+    editor.focus();
+  }
+
+  setModeUI();
+  updateCounts();
+  editor.focus();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {
+        // Fails silently if opened directly from disk (file://) —
+        // installing requires the files to be served over http(s).
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
