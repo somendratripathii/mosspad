@@ -226,70 +226,6 @@
   .editor-pane textarea::placeholder { color: rgba(220,235,228,0.32); }
   .editor-pane textarea::selection { background: rgba(127,174,143,0.35); }
 
-  /* preview pane */
-  .preview-pane {
-    flex: 0 0 0%;
-    width: 0;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .workspace.split .editor-pane { flex: 1 1 48%; }
-  .workspace.split .preview-pane {
-    flex: 1 1 52%;
-    width: auto;
-    opacity: 1;
-    pointer-events: auto;
-    animation: wipe-in 0.55s ease;
-  }
-
-  @keyframes wipe-in {
-    from { clip-path: circle(0% at 100% 0%); opacity: 0.4; }
-    to   { clip-path: circle(150% at 100% 0%); opacity: 1; }
-  }
-
-  .preview-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    font-size: 0.78rem;
-    color: #b9d1c2;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .preview-close {
-    background: none;
-    border: none;
-    color: #b9d1c2;
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    padding: 4px 8px;
-    border-radius: 6px;
-  }
-  .preview-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
-
-  .preview-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-  .preview-body iframe {
-    flex: 1;
-    border: none;
-    width: 100%;
-    background: #f4faf6;
-  }
-
-  .console {
-    flex: 1;
-    overflow-y: auto;
-    padding: 14px 18px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.82rem;
-    line-height: 1.7;
-  }
-  .console .line { padding: 3px 0; border-bottom: 1px dashed rgba(255,255,255,0.06); white-space: pre-wrap; word-break: break-word; }
-  .console .line.error { color: #f2a0a0; }
-  .console .line.warn { color: #e8d090; }
-  .console .empty { color: rgba(220,235,228,0.4); font-style: italic; }
-
   /* ---------- Status bar ---------- */
   .statusbar {
     display: flex;
@@ -335,13 +271,91 @@
   .confirm-box p { margin: 0 0 16px; color: #e7efe9; font-size: 0.9rem; }
   .confirm-actions { display: flex; gap: 10px; justify-content: center; }
 
+  .panel-box {
+    max-width: 420px;
+    width: 90vw;
+    text-align: left;
+  }
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+    color: #cfe6d6;
+    margin-bottom: 14px;
+    font-size: 0.95rem;
+  }
+  .preview-close {
+    background: none;
+    border: none;
+    color: #b9d1c2;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .preview-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  .files-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .file-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #e7efe9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-meta { font-size: 0.72rem; color: #9db3a8; margin-top: 2px; }
+  .file-actions { display: flex; gap: 6px; }
+  .file-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #b9d1c2;
+    font-size: 0.85rem;
+    padding: 5px 8px;
+    border-radius: 6px;
+  }
+  .file-actions button:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .file-actions .delete-file:hover { color: #f2a0a0; }
+  .files-empty { color: rgba(220,235,228,0.45); font-style: italic; font-size: 0.85rem; text-align: center; padding: 12px 0; }
+
+  .share-note { font-size: 0.8rem; color: #b9d1c2; text-align: left; }
+  .share-link-box {
+    width: 100%;
+    resize: none;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    color: #e7efe9;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    padding: 10px;
+    margin-bottom: 14px;
+  }
+
   ::-webkit-scrollbar { width: 10px; }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
 
   @media (max-width: 720px) {
-    .workspace.split { flex-direction: column; }
-    .workspace.split .editor-pane, .workspace.split .preview-pane { flex: 1 1 50%; width: auto; }
     .filename-input { width: 110px; }
   }
 </style>
@@ -369,25 +383,21 @@
     <input class="filename-input" id="filename" value="untitled.html" spellcheck="false" aria-label="File name">
     <select class="mode-select" id="mode" aria-label="Language mode">
       <option value="html">HTML</option>
+      <option value="css">CSS</option>
       <option value="js">JavaScript</option>
     </select>
     <div class="spacer"></div>
     <button class="btn btn-ghost" id="newBtn" title="New (clear pad)">✦ New</button>
-    <button class="btn btn-ghost" id="downloadBtn" title="Download file">⤓ Save</button>
+    <button class="btn btn-ghost" id="filesBtn" title="Saved files">📁 Files</button>
+    <button class="btn btn-ghost" id="saveFileBtn" title="Save to Mosspad">💾 Save</button>
+    <button class="btn btn-ghost" id="shareBtn" title="Share a link to this code">🔗 Share</button>
+    <button class="btn btn-ghost" id="downloadBtn" title="Download as a file">⤓ Download</button>
     <button class="btn btn-run" id="runBtn" title="Run (Ctrl+Enter)">▶ Run</button>
   </header>
 
   <div class="workspace" id="workspace">
     <section class="pane editor-pane">
       <textarea id="editor" placeholder="Start writing your code here..." spellcheck="false"></textarea>
-    </section>
-
-    <section class="pane preview-pane" id="previewPane">
-      <div class="preview-head">
-        <span id="previewLabel">Preview</span>
-        <button class="preview-close" id="closePreview" title="Back to writing">← close</button>
-      </div>
-      <div class="preview-body" id="previewBody"></div>
     </section>
   </div>
 
@@ -409,6 +419,40 @@
   </div>
 </div>
 
+<div class="confirm-overlay" id="filesOverlay">
+  <div class="confirm-box panel-box">
+    <div class="panel-head">
+      <span>Saved files</span>
+      <button class="preview-close" id="closeFiles" title="Close">✕</button>
+    </div>
+    <div class="files-list" id="filesList"></div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="shareOverlay">
+  <div class="confirm-box panel-box">
+    <div class="panel-head">
+      <span>Share this code</span>
+      <button class="preview-close" id="closeShare" title="Close">✕</button>
+    </div>
+    <p class="share-note">Anyone who opens this link gets your code loaded into their own Mosspad. Nothing is stored on a server — the code lives inside the link itself, so very long code makes a very long link.</p>
+    <textarea class="share-link-box" id="shareLinkBox" readonly rows="3"></textarea>
+    <div class="confirm-actions">
+      <button class="btn btn-run" id="copyShareLink">Copy link</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="loadSharedOverlay">
+  <div class="confirm-box">
+    <p>Someone shared code with you. Load it into the pad? This will replace what's currently here.</p>
+    <div class="confirm-actions">
+      <button class="btn" id="loadSharedCancel">Cancel</button>
+      <button class="btn btn-run" id="loadSharedOk">Load it</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const editor = document.getElementById('editor');
   const filenameInput = document.getElementById('filename');
@@ -417,10 +461,6 @@
   const newBtn = document.getElementById('newBtn');
   const downloadBtn = document.getElementById('downloadBtn');
   const workspace = document.getElementById('workspace');
-  const previewPane = document.getElementById('previewPane');
-  const previewBody = document.getElementById('previewBody');
-  const previewLabel = document.getElementById('previewLabel');
-  const closePreview = document.getElementById('closePreview');
   const lineCount = document.getElementById('lineCount');
   const charCount = document.getElementById('charCount');
   const modeLabel = document.getElementById('modeLabel');
@@ -428,8 +468,27 @@
   const confirmOk = document.getElementById('confirmOk');
   const confirmCancel = document.getElementById('confirmCancel');
 
+  const filesBtn = document.getElementById('filesBtn');
+  const filesOverlay = document.getElementById('filesOverlay');
+  const filesList = document.getElementById('filesList');
+  const closeFiles = document.getElementById('closeFiles');
+  const saveFileBtn = document.getElementById('saveFileBtn');
+
+  const shareBtn = document.getElementById('shareBtn');
+  const shareOverlay = document.getElementById('shareOverlay');
+  const shareLinkBox = document.getElementById('shareLinkBox');
+  const closeShare = document.getElementById('closeShare');
+  const copyShareLink = document.getElementById('copyShareLink');
+
+  const loadSharedOverlay = document.getElementById('loadSharedOverlay');
+  const loadSharedOk = document.getElementById('loadSharedOk');
+  const loadSharedCancel = document.getElementById('loadSharedCancel');
+
+  let currentFileId = null;
+
   const placeholders = {
     html: 'Start writing your code here...\n\ne.g. <h1>Hello, mountains!</h1>',
+    css: 'Start writing your code here...\n\ne.g. h1 { color: seagreen; }',
     js: 'Start writing your code here...\n\ne.g. console.log("hello from the rain")'
   };
 
@@ -444,8 +503,9 @@
     const mode = modeSelect.value;
     editor.placeholder = placeholders[mode];
     modeLabel.textContent = `Mode: ${mode.toUpperCase()}`;
-    const currentName = filenameInput.value.replace(/\.(html|js)$/i, '');
-    filenameInput.value = `${currentName || 'untitled'}.${mode === 'html' ? 'html' : 'js'}`;
+    const currentName = filenameInput.value.replace(/\.(html|css|js)$/i, '');
+    const ext = mode === 'html' ? 'html' : mode === 'css' ? 'css' : 'js';
+    filenameInput.value = `${currentName || 'untitled'}.${ext}`;
   }
 
   editor.addEventListener('input', updateCounts);
@@ -469,84 +529,74 @@
     }
   });
 
-  function openPreview() {
-    workspace.classList.add('split');
-  }
-  function shutPreview() {
-    workspace.classList.remove('split');
-  }
-  closePreview.addEventListener('click', shutPreview);
-
   function runCode() {
     const mode = modeSelect.value;
-    previewBody.innerHTML = '';
-    openPreview();
+    let doc;
 
     if (mode === 'html') {
-      previewLabel.textContent = 'Preview';
-      const iframe = document.createElement('iframe');
-      iframe.setAttribute('sandbox', 'allow-scripts allow-modals');
-      previewBody.appendChild(iframe);
-      iframe.srcdoc = editor.value;
+      doc = editor.value;
+    } else if (mode === 'css') {
+      const userCss = editor.value;
+      doc = `<!DOCTYPE html><html><head><title>Mosspad — Preview</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>${userCss}</style>
+        </head><body>
+        <h1>A heading like this</h1>
+        <p>A paragraph of text sits here, so you can see how your CSS affects ordinary reading text.</p>
+        <button>A button</button>
+        <ul>
+          <li>First list item</li>
+          <li>Second list item</li>
+          <li>Third list item</li>
+        </ul>
+        <div class="box" style="width:120px;height:80px;border:1px solid #ccc;margin-top:16px;">A div.box</div>
+        </body></html>`;
     } else {
-      previewLabel.textContent = 'Console';
-      const consoleEl = document.createElement('div');
-      consoleEl.className = 'console';
-      previewBody.appendChild(consoleEl);
-
-      const iframe = document.createElement('iframe');
-      iframe.setAttribute('sandbox', 'allow-scripts');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-
       const userCode = editor.value.replace(/<\/script>/g, '<\\/script>');
-      const doc = `<!DOCTYPE html><html><head></head><body><script>
-        (function(){
-          function send(level, args){
-            parent.postMessage({ __mosspad: true, level: level, args: args.map(function(a){
-              try { return typeof a === 'object' ? JSON.stringify(a) : String(a); }
-              catch(e){ return String(a); }
-            }) }, '*');
+      doc = `<!DOCTYPE html><html><head><title>Mosspad — Output</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          body { font-family: 'JetBrains Mono', monospace; background: #101d19; color: #e7efe9; padding: 22px; line-height: 1.7; }
+          .line { padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.08); white-space: pre-wrap; word-break: break-word; }
+          .error { color: #f2a0a0; }
+          .warn { color: #e8d090; }
+          .empty { color: rgba(220,235,228,0.45); font-style: italic; }
+        </style>
+        </head><body>
+        <div id="out"></div>
+        <script>
+          var out = document.getElementById('out');
+          function addLine(text, cls) {
+            var d = document.createElement('div');
+            d.className = 'line' + (cls ? ' ' + cls : '');
+            d.textContent = text;
+            out.appendChild(d);
           }
           ['log','info','warn','error'].forEach(function(level){
             var orig = console[level];
-            console[level] = function(){ send(level, Array.prototype.slice.call(arguments)); orig && orig.apply(console, arguments); };
+            console[level] = function(){
+              var args = Array.prototype.slice.call(arguments).map(function(a){
+                try { return typeof a === 'object' ? JSON.stringify(a) : String(a); }
+                catch(e){ return String(a); }
+              });
+              addLine(args.join(' '), level === 'error' ? 'error' : level === 'warn' ? 'warn' : '');
+              orig && orig.apply(console, arguments);
+            };
           });
-          window.onerror = function(msg, url, line){ send('error', [msg + ' (line ' + line + ')']); };
+          window.onerror = function(msg, url, line){ addLine(msg + ' (line ' + line + ')', 'error'); };
           try {
             ${userCode}
           } catch (e) {
-            send('error', [e.message]);
+            addLine(e.message, 'error');
           }
-        })();
-      <\/script></body></html>`;
-
-      const listener = (e) => {
-        if (e.data && e.data.__mosspad) {
-          const line = document.createElement('div');
-          line.className = 'line' + (e.data.level === 'error' ? ' error' : e.data.level === 'warn' ? ' warn' : '');
-          line.textContent = e.data.args.join(' ');
-          if (consoleEl.querySelector('.empty')) consoleEl.innerHTML = '';
-          consoleEl.appendChild(line);
-          consoleEl.scrollTop = consoleEl.scrollHeight;
-        }
-      };
-      window.addEventListener('message', listener);
-
-      iframe.srcdoc = doc;
-      iframe.addEventListener('load', () => {
-        setTimeout(() => {
-          if (!consoleEl.hasChildNodes()) {
-            const empty = document.createElement('div');
-            empty.className = 'empty';
-            empty.textContent = 'No output yet — try a console.log()';
-            consoleEl.appendChild(empty);
-          }
-          window.removeEventListener('message', listener);
-          iframe.remove();
-        }, 400);
-      });
+          if (!out.hasChildNodes()) addLine('No output yet — try a console.log()', 'empty');
+        <\/script>
+        </body></html>`;
     }
+
+    const blob = new Blob([doc], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
   }
 
   runBtn.addEventListener('click', runCode);
@@ -570,20 +620,174 @@
   confirmOk.addEventListener('click', () => { confirmOverlay.classList.remove('show'); doClear(); });
   function doClear() {
     editor.value = '';
-    shutPreview();
     updateCounts();
     editor.focus();
+    currentFileId = null;
     try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
   }
 
   const DRAFT_KEY = 'mosspad-draft';
+  const FILES_KEY = 'mosspad-files';
+
+  function loadFiles() {
+    try {
+      const raw = localStorage.getItem(FILES_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+
+  function saveFiles(files) {
+    try { localStorage.setItem(FILES_KEY, JSON.stringify(files)); } catch (e) {}
+  }
+
+  function renderFilesList() {
+    const files = loadFiles();
+    filesList.innerHTML = '';
+    if (files.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'files-empty';
+      empty.textContent = 'Nothing saved yet — write something and hit Save.';
+      filesList.appendChild(empty);
+      return;
+    }
+    files.slice().sort((a, b) => b.updatedAt - a.updatedAt).forEach((f) => {
+      const row = document.createElement('div');
+      row.className = 'file-row';
+
+      const info = document.createElement('div');
+      info.className = 'file-info';
+      const name = document.createElement('div');
+      name.className = 'file-name';
+      name.textContent = f.name;
+      const meta = document.createElement('div');
+      meta.className = 'file-meta';
+      meta.textContent = `${f.mode.toUpperCase()} · ${new Date(f.updatedAt).toLocaleString()}`;
+      info.appendChild(name);
+      info.appendChild(meta);
+
+      const actions = document.createElement('div');
+      actions.className = 'file-actions';
+      const loadBtnEl = document.createElement('button');
+      loadBtnEl.textContent = 'Open';
+      loadBtnEl.addEventListener('click', () => openFile(f.id));
+      const delBtnEl = document.createElement('button');
+      delBtnEl.className = 'delete-file';
+      delBtnEl.textContent = 'Delete';
+      delBtnEl.addEventListener('click', () => deleteFile(f.id));
+      actions.appendChild(loadBtnEl);
+      actions.appendChild(delBtnEl);
+
+      row.appendChild(info);
+      row.appendChild(actions);
+      filesList.appendChild(row);
+    });
+  }
+
+  function openFile(id) {
+    const files = loadFiles();
+    const f = files.find((x) => x.id === id);
+    if (!f) return;
+    editor.value = f.code;
+    modeSelect.value = f.mode;
+    filenameInput.value = f.name;
+    currentFileId = f.id;
+    setModeUI();
+    updateCounts();
+    saveDraft();
+    filesOverlay.classList.remove('show');
+  }
+
+  function deleteFile(id) {
+    const files = loadFiles().filter((x) => x.id !== id);
+    saveFiles(files);
+    if (currentFileId === id) currentFileId = null;
+    renderFilesList();
+  }
+
+  function saveCurrentFile() {
+    const files = loadFiles();
+    const name = filenameInput.value || 'untitled';
+    if (currentFileId) {
+      const existing = files.find((x) => x.id === currentFileId);
+      if (existing) {
+        existing.code = editor.value;
+        existing.mode = modeSelect.value;
+        existing.name = name;
+        existing.updatedAt = Date.now();
+      } else {
+        currentFileId = null;
+      }
+    }
+    if (!currentFileId) {
+      const id = 'f_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+      files.push({ id, name, mode: modeSelect.value, code: editor.value, updatedAt: Date.now() });
+      currentFileId = id;
+    }
+    saveFiles(files);
+    saveDraft();
+  }
+
+  filesBtn.addEventListener('click', () => { renderFilesList(); filesOverlay.classList.add('show'); });
+  closeFiles.addEventListener('click', () => filesOverlay.classList.remove('show'));
+  saveFileBtn.addEventListener('click', saveCurrentFile);
+
+  // ---------- Share via link ----------
+  function encodePayload(obj) {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+  }
+  function decodePayload(str) {
+    return JSON.parse(decodeURIComponent(escape(atob(str))));
+  }
+
+  shareBtn.addEventListener('click', () => {
+    const payload = { m: modeSelect.value, c: editor.value, n: filenameInput.value };
+    const encoded = encodePayload(payload);
+    const link = `${location.origin}${location.pathname}#s=${encoded}`;
+    shareLinkBox.value = link;
+    shareOverlay.classList.add('show');
+    shareLinkBox.focus();
+    shareLinkBox.select();
+  });
+  closeShare.addEventListener('click', () => shareOverlay.classList.remove('show'));
+  copyShareLink.addEventListener('click', () => {
+    shareLinkBox.select();
+    navigator.clipboard && navigator.clipboard.writeText(shareLinkBox.value).catch(() => {});
+    copyShareLink.textContent = 'Copied!';
+    setTimeout(() => { copyShareLink.textContent = 'Copy link'; }, 1500);
+  });
+
+  let pendingShared = null;
+  function checkForSharedLink() {
+    const hash = location.hash;
+    if (hash && hash.startsWith('#s=')) {
+      try {
+        pendingShared = decodePayload(hash.slice(3));
+        loadSharedOverlay.classList.add('show');
+      } catch (e) { pendingShared = null; }
+      history.replaceState(null, '', location.pathname);
+    }
+  }
+  loadSharedOk.addEventListener('click', () => {
+    if (pendingShared) {
+      modeSelect.value = pendingShared.m || 'html';
+      editor.value = pendingShared.c || '';
+      filenameInput.value = pendingShared.n || 'untitled.html';
+      currentFileId = null;
+      setModeUI();
+      updateCounts();
+      saveDraft();
+    }
+    loadSharedOverlay.classList.remove('show');
+  });
+  loadSharedCancel.addEventListener('click', () => loadSharedOverlay.classList.remove('show'));
 
   function saveDraft() {
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({
         code: editor.value,
         mode: modeSelect.value,
-        filename: filenameInput.value
+        filename: filenameInput.value,
+        fileId: currentFileId
       }));
     } catch (e) { /* storage unavailable — ignore */ }
   }
@@ -596,6 +800,7 @@
       if (data.mode) modeSelect.value = data.mode;
       if (typeof data.code === 'string') editor.value = data.code;
       if (data.filename) filenameInput.value = data.filename;
+      if (data.fileId) currentFileId = data.fileId;
     } catch (e) { /* ignore corrupted draft */ }
   }
 
@@ -613,6 +818,7 @@
   setModeUI();
   updateCounts();
   editor.focus();
+  checkForSharedLink();
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
