@@ -312,6 +312,40 @@
     letter-spacing: 0.02em;
   }
 
+  .credit-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .credit-text {
+    font-size: 0.68rem;
+    color: rgba(220,235,228,0.35);
+    font-family: 'Manrope', sans-serif;
+    letter-spacing: 0.02em;
+  }
+  .credit-link {
+    background: none;
+    border: none;
+    color: rgba(220,235,228,0.45);
+    font-size: 0.68rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  .credit-link:hover { color: rgba(220,235,228,0.8); }
+  .credit-email {
+    text-align: center;
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: #7fae8c;
+    min-height: 1em;
+    flex-shrink: 0;
+  }
+
   /* ---------- Workspace ---------- */
   .workspace {
     flex: 1;
@@ -569,6 +603,17 @@
   .theme-tip { font-size: 0.78rem; color: #a9c2b3; font-style: italic; }
   .copied-toast { font-size: 0.68rem; color: #7fae8c; margin-top: 2px; }
 
+  .fonts-list { max-height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+  .font-row {
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .font-name-display { font-size: 1.1rem; color: #9db3a8; margin-bottom: 6px; }
+  .font-meta { font-size: 0.68rem; color: #7f9689; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+  .font-sample-display { font-size: 2.1rem; color: #e7efe9; line-height: 1.2; }
+
   ::-webkit-scrollbar { width: 10px; }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -629,6 +674,7 @@
     <div class="spacer"></div>
     <button class="btn btn-ghost" id="newBtn" title="New (clear pad)">✦ New</button>
     <button class="btn btn-ghost" id="ideasBtn" title="Get color & font ideas">🎨 Ideas</button>
+    <button class="btn btn-ghost" id="fontsBtn" title="Typography reference">🔤 Fonts</button>
     <button class="btn btn-ghost" id="filesBtn" title="Saved files">📁 Files</button>
     <button class="btn btn-ghost" id="saveFileBtn" title="Save to Mosspad">💾 Save</button>
     <button class="btn btn-ghost" id="shareBtn" title="Share a link to this code">🔗 Share</button>
@@ -669,6 +715,22 @@
   <div class="run-bar">
     <button class="btn btn-run btn-run-large" id="runBtn" title="Run (Ctrl+Enter)">▶ Run Code</button>
   </div>
+
+  <div class="credit-row">
+    <button class="credit-link" id="aboutBtn">ℹ️ About</button>
+    <span class="credit-text">Mosspad — a product by Somendra Tripathi</span>
+    <button class="credit-link" id="emailBtn" title="Contact via email">✉️</button>
+  </div>
+  <div class="credit-email" id="creditEmail"></div>
+</div>
+
+<div class="confirm-overlay" id="aboutOverlay">
+  <div class="confirm-box">
+    <p>Mosspad makes learning to code feel effortless — no installs, no clutter, just one calm pad. Write HTML, CSS, or JavaScript, tap Run to preview instantly, and explore font pairings and color ideas built right in. Save drafts, share a link, or install it like a real app. Open it, write, run — that's it.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-run" id="aboutClose">Got it</button>
+    </div>
+  </div>
 </div>
 
 <div class="confirm-overlay" id="confirmOverlay">
@@ -693,6 +755,17 @@
       <button class="btn btn-run" id="ideaFindBtn">Find</button>
     </div>
     <div class="idea-results" id="ideaResults"></div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="fontsOverlay">
+  <div class="confirm-box panel-box wide-box">
+    <div class="panel-head">
+      <span>Typography reference</span>
+      <button class="preview-close" id="closeFonts" title="Close">✕</button>
+    </div>
+    <p class="share-note">See how each typeface actually looks — name and example side by side.</p>
+    <div class="fonts-list" id="fontsList"></div>
   </div>
 </div>
 
@@ -751,6 +824,11 @@
   const ideaInput = document.getElementById('ideaInput');
   const ideaFindBtn = document.getElementById('ideaFindBtn');
   const ideaResults = document.getElementById('ideaResults');
+
+  const fontsBtn = document.getElementById('fontsBtn');
+  const fontsOverlay = document.getElementById('fontsOverlay');
+  const closeFonts = document.getElementById('closeFonts');
+  const fontsList = document.getElementById('fontsList');
 
   const filesBtn = document.getElementById('filesBtn');
   const filesOverlay = document.getElementById('filesOverlay');
@@ -1123,6 +1201,112 @@
   closeIdeas.addEventListener('click', () => ideasOverlay.classList.remove('show'));
   ideaFindBtn.addEventListener('click', runIdeaSearch);
   ideaInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runIdeaSearch(); });
+
+  // ---------- Typography reference ----------
+  const FONT_LIBRARY = [
+    { name: 'Inter', category: 'Sans-serif' },
+    { name: 'Roboto', category: 'Sans-serif' },
+    { name: 'Poppins', category: 'Sans-serif, geometric' },
+    { name: 'Montserrat', category: 'Sans-serif' },
+    { name: 'Nunito', category: 'Sans-serif, rounded' },
+    { name: 'Quicksand', category: 'Sans-serif, rounded' },
+    { name: 'Work Sans', category: 'Sans-serif' },
+    { name: 'Manrope', category: 'Sans-serif' },
+    { name: 'Playfair Display', category: 'Serif, display' },
+    { name: 'Merriweather', category: 'Serif' },
+    { name: 'Lora', category: 'Serif' },
+    { name: 'Cormorant Garamond', category: 'Serif, elegant' },
+    { name: 'Libre Baskerville', category: 'Serif' },
+    { name: 'Fraunces', category: 'Serif, warm' },
+    { name: 'Abril Fatface', category: 'Display serif' },
+    { name: 'Bebas Neue', category: 'Display, condensed' },
+    { name: 'Oswald', category: 'Display, condensed sans' },
+    { name: 'Pacifico', category: 'Script / handwriting' },
+    { name: 'Dancing Script', category: 'Script / handwriting' },
+    { name: 'Caveat', category: 'Handwriting' },
+    { name: 'JetBrains Mono', category: 'Monospace' },
+    { name: 'Space Mono', category: 'Monospace' },
+    { name: 'Fira Code', category: 'Monospace, coding' },
+    { name: 'Source Code Pro', category: 'Monospace' },
+    { name: 'Orbitron', category: 'Display, futuristic' },
+    { name: 'Baloo 2', category: 'Display, playful' },
+    { name: 'Comfortaa', category: 'Sans-serif, rounded' }
+  ];
+
+  function genericFallback(category) {
+    const c = category.toLowerCase();
+    if (c.includes('mono')) return 'monospace';
+    if (c.includes('script') || c.includes('handwriting')) return 'cursive';
+    if (c.includes('sans')) return 'sans-serif';
+    if (c.includes('serif')) return 'serif';
+    return 'sans-serif';
+  }
+
+  let fontsLoaded = false;
+  function loadAllFontFamilies() {
+    if (fontsLoaded) return;
+    fontsLoaded = true;
+    const families = FONT_LIBRARY.map((f) => `family=${encodeURIComponent(f.name)}:wght@400;700`).join('&');
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?${families}&display=swap`;
+    document.head.appendChild(link);
+  }
+
+  function renderFontsList() {
+    if (fontsList.childElementCount > 0) return;
+    fontsList.innerHTML = '';
+    FONT_LIBRARY.forEach((f) => {
+      const fallback = genericFallback(f.category);
+      const row = document.createElement('div');
+      row.className = 'font-row';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'font-name-display';
+      nameEl.style.fontFamily = `'${f.name}', ${fallback}`;
+      nameEl.textContent = f.name;
+
+      const metaEl = document.createElement('div');
+      metaEl.className = 'font-meta';
+      metaEl.textContent = f.category;
+
+      const sampleEl = document.createElement('div');
+      sampleEl.className = 'font-sample-display';
+      sampleEl.style.fontFamily = `'${f.name}', ${fallback}`;
+      sampleEl.textContent = 'AaBb';
+
+      row.appendChild(nameEl);
+      row.appendChild(metaEl);
+      row.appendChild(sampleEl);
+      fontsList.appendChild(row);
+    });
+  }
+
+  fontsBtn.addEventListener('click', () => {
+    loadAllFontFamilies();
+    renderFontsList();
+    fontsOverlay.classList.add('show');
+  });
+  closeFonts.addEventListener('click', () => fontsOverlay.classList.remove('show'));
+
+  // ---------- About & contact ----------
+  const aboutBtn = document.getElementById('aboutBtn');
+  const aboutOverlay = document.getElementById('aboutOverlay');
+  const aboutClose = document.getElementById('aboutClose');
+  aboutBtn.addEventListener('click', () => aboutOverlay.classList.add('show'));
+  aboutClose.addEventListener('click', () => aboutOverlay.classList.remove('show'));
+
+  const emailBtn = document.getElementById('emailBtn');
+  const creditEmail = document.getElementById('creditEmail');
+  const CONTACT_EMAIL = 'somendratripathi1999@gmail.com';
+  emailBtn.addEventListener('click', () => {
+    if (creditEmail.textContent) {
+      creditEmail.textContent = '';
+    } else {
+      creditEmail.textContent = CONTACT_EMAIL;
+      navigator.clipboard && navigator.clipboard.writeText(CONTACT_EMAIL).catch(() => {});
+    }
+  });
 
   function loadFiles() {
     try {
